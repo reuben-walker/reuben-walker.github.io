@@ -4,21 +4,55 @@
         <meta charset="UFT-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Reuben Walker - Portfolio</title>
-        <h1>Portfolio</h1>
-        <div id ="menubar">
-            <a href="index.html"><button class="menubutton">Home</button></a> 
-            <a href="portfolio.html"><button class="menubutton">Portfolio</button></a> 
-            <a href="resume.html"><button class="menubutton">Resumé</button></a> 
-            <a href="resume.html"><button class="menubutton">Contact</button></a> 
-        </div>
-     
         <link rel="stylesheet" href="css/styles.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     </head>
 
     <body>
-        <h2>Academic Projects</h2>
+      <header>
 
+        <h1>Portfolio</h1>
+
+        <div id ="menubar">
+          <a href="index.html"><button class="menubutton">Home</button></a> 
+          <a href="portfolio.html"><button class="menubutton">Portfolio</button></a> 
+          <a href="resume.html"><button class="menubutton">Resumé</button></a> 
+          <a href="contact.html"><button class="menubutton">Contact</button></a> 
+        </div>
+   
+      </header>
+
+      <div class="flex-container"> 
+
+        <div class = "portfolio-list">
+
+          <div class="portfolio-item">
+            <img class="flex-img" src="portfolio/Portfolioitems/REMS5001_asn5.png" alt="Mountains" width="250">
+            <div>
+              <h4>annapolis valley spectral</h4>
+              aahhhhaAAAAAAAAAAAAAAAAAAAAA! sfghfdgAAAAAAA! sfghfdg
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="portfolio-item">
+            <img class="flex-img" src="portfolio/Portfolioitems/oldgrowth_poster.png" alt="Mountains" width="250">
+            <div>
+              <h4>annapolis valley spectral</h4>
+              aahhhhaAAAAAAAAAAAAAAAAAAAAA! sfghfdgAAAAAAA! sfghfdg
+            </div>
+          </div>
+          
+
+        </div>
+     
+      </div>
+
+    <!--
         <div>
             <h3>NSCC Centre of Geographic Sciences (2023-2024)</h3>
             <div class="row">
@@ -26,34 +60,36 @@
               <div class="responsive">
                 <a onclick="on('LawrencetownLIDAR')">
                 <div class="gallery">  
-                    <img src="Portfolioitems//lidarbuildings/Building_shot_street.png" alt="Forest" width="600" height="400">
+                    <img src="portfolio/Portfolioitems/lidarbuildings/Building_shot_street.png" alt="Forest" width="600" height="400">
                   <div class="desc">3D Buildings, DEM & DSM from LiDAR Point Cloud<br>(REMS 6090, 2024)</div>
                 </a>
                 </div>
               </div>
               
+              
               <div class="responsive">
                 <a href="Portfolioitems/Walker_Lab3_report.pdf" target="_blank">
                 <div class="gallery">
-                    <img src="Portfolioitems/Walker_Lab3_report.jpg" alt="Mountains" width="600" height="400">
+                    <img src="portfolio/Portfolioitems/Walker_Lab3_report.jpg" alt="Mountains" width="600" height="400">
                   <div class="desc">LiDAR Accuracy Assesment Report<br>(REMS 6085, 2024, PDF)</div>
                 </a>
                 </div>
               </div>
+              
 
               <div class="responsive">
-                <a onclick="on('supervisedClassification')">
+                <a href = "portfolio/spectral_classification.html">
                 <div class="gallery">
-                    <img src="Portfolioitems/REMS5001_asn5.png" alt="Mountains" width="600" height="400">
+                    <img src="portfolio/Portfolioitems/REMS5001_asn5.png" alt="Mountains" width="600" height="400">
                   <div class="desc">Annapolis Valley Spectral Classification Map<br>(REMS 5001, 2023)</div>
                 </a>
                 </div>
               </div>
               
               <div class="responsive">
-                <a onclick="on('oldGrowthPoster')">
+                <a href = "portfolio/image_enhancement.html">
                 <div class="gallery">
-                    <img src="Portfolioitems/oldgrowth_poster.png" alt="Mountains" width="600" height="400">
+                    <img src="portfolio/Portfolioitems/oldgrowth_poster.png" alt="Mountains" width="600" height="400">
                   <div class="desc">Remote Sensing Image Enhancement Poster<br>(REMS 5001, 2023)</div>
                 </a>
                 </div>
@@ -68,7 +104,7 @@
             <div class="responsive">
               <a onclick="on('fireStation')">
               <div class="gallery">
-                  <img src="Portfolioitems/351asst1.jpg" alt="Cinque Terre" width="600" height="400">
+                  <img src="portfolio/Portfolioitems/351asst1.jpg" alt="Cinque Terre" width="600" height="400">
                 <div class="desc">Fire Station Coverage Map<br>(GEOG 351, 2020)</div>
               </a>
               </div>
@@ -78,13 +114,14 @@
               <div class="responsive">
                 <a onclick="on('bivariateChoropleth')">
                 <div class="gallery">  
-                    <img src="Portfolioitems/geog251_project_spatial_data.png" alt="Forest" width="600" height="400">
+                    <img src="portfolio/Portfolioitems/geog251_project_spatial_data.png" alt="Forest" width="600" height="400">
                   <div class="desc">Bivariate Choropleth Analysis Map<br>(GEOG 251, 2018)</div>
                 </a>
                 </div>
               </div>
 
             </div>
+            -->
 
           
 
@@ -93,17 +130,6 @@
 
       </div>
 
-
-        
-
-        <h2>Personal Projects</h2>
-
-        <div>
-            
-            
-
-        this text fixes it
-        </div>
     </body>
 
     <footer>
@@ -111,7 +137,7 @@
         <h3>Fire Station Coverage Map</h3>
         <h4>Created for GEOG 351 - Multimedia Cartograpy at Simon Fraser University</h4>
         This map used the Network Analyst extension in ArcMap to determine the driving distance from Fire stations in Vancouver.
-        <img src="Portfolioitems/351asst1.jpg" class="center">
+        <img src="portfolio/Portfolioitems/351asst1.jpg" class="center">
         <br>
         (Click anywhere to close)
   </div> 
@@ -119,7 +145,7 @@
   <div class="overlay" id="bivariateChoropleth" onclick="off('bivariateChoropleth')">
     <h3>Bivariate Choropleth Analysis Map</h3>
     <h4>Created for GEOG 251 - Quantitative Geography at Simon Fraser University</h4>
-    <img src="Portfolioitems/geog251_project_spatial_data.png" class="center">
+    <img src="portfolio/Portfolioitems/geog251_project_spatial_data.png" class="center">
     <br>
     (Click anywhere to close)
   </div> 
@@ -127,7 +153,7 @@
   <div class="overlay" id="supervisedClassification" onclick="off('supervisedClassification')">
     <h3>Annapolis Valley Spectral Classification</h3>
     <h4>Created for REMS 5001 - Fundamentals of Remote Sensing at NSCC Centre of Geographic Sciences</h4>
-    <img src="Portfolioitems/REMS5001_asn5.png" width = 100%>
+    <img src="portfolio/Portfolioitems/REMS5001_asn5.png" width = 100%>
     <br><br>
     (Click anywhere to close)
   </div> 
@@ -135,7 +161,7 @@
   <div class="overlay" id="oldGrowthPoster" onclick="off('oldGrowthPoster')">
     <h3>Remote Sensing Image Enhancement Poster</h3>
     <h4>Created for REMS 5001 - Fundamentals of Remote Sensing at NSCC Centre of Geographic Sciences</h4>
-    <img src="Portfolioitems/oldgrowth_poster.png" width = 100%>
+    <img src="portfolio/Portfolioitems/oldgrowth_poster.png" width = 100%>
     <br><br>
     (Click anywhere to close)
   </div> 
@@ -146,20 +172,20 @@
     This project involved creating a digital elevation model (DEM), digital surface model (DSM), and 3D building models from a LiDAR point cloud.<br> 
     The TerraScan extension for Bentley MicroStation was used to automatically identify LiDAR points corresponding to buildings. Any misclassifications were corrected. <br>
     3D building models were created based on the classified LiDAR points, as well as a DEM from the ground-classified points and a DSM from all non-building points.<br>
-    The project study area was located in Lawrencetown, Nova Scotia.
+    The project study area was located in Lawrencetown, Nova Scotia.<br><br><br><br>
 
-    <img src="Portfolioitems/lidarbuildings/Map_3D.png" class="center">
-    LiDAR point cloud as displayed in ArcGIS Pro.
-    <img src="Portfolioitems/lidarbuildings/Shaded_Relief_DEM.png" class="center">
-    DEM derived from LiDAR ground points, with 3D buildings.
-    <img src="Portfolioitems/lidarbuildings/Shaded_Relief_DSM.png" class="center">
-    DSM derived from LiDAR ground & vegetation points, with 3D buildings.
-    <img src="Portfolioitems/lidarbuildings/Building_shot_COGS.png" class="center">
-    3D building model of the COGS campus.
-    <img src="Portfolioitems/lidarbuildings/Building_shot_exhibition.png" class="center">
-    3D building models of the Annapolis Valley Exhibition grounds.
-    <img src="Portfolioitems/lidarbuildings/Building_shot_street.png" class="center">
-    View of Main St in Lawrencetown.
+    <img src="portfolio/Portfolioitems/lidarbuildings/Map_3D.png" class="center">
+    LiDAR point cloud as displayed in ArcGIS Pro.<br><br><br><br>
+    <img src="portfolio/Portfolioitems/lidarbuildings/Shaded_Relief_DEM.png" class="center">
+    DEM derived from LiDAR ground points, with 3D buildings.<br><br><br><br>
+    <img src="portfolio/Portfolioitems/lidarbuildings/Shaded_Relief_DSM.png" class="center">
+    DSM derived from LiDAR ground & vegetation points, with 3D buildings.<br><br><br><br>
+    <img src="portfolio/Portfolioitems/lidarbuildings/Building_shot_COGS.png" class="center">
+    3D building model of the COGS campus.<br><br><br><br>
+    <img src="portfolio/Portfolioitems/lidarbuildings/Building_shot_exhibition.png" class="center">
+    3D building models of the Annapolis Valley Exhibition grounds.<br><br><br><br>
+    <img src="portfolio/Portfolioitems/lidarbuildings/Building_shot_street.png" class="center">
+    View of Main St in Lawrencetown.<br><br><br><br>
 
     <br><br><br>
  
@@ -168,7 +194,7 @@
 
   <div class="overlay" id="overlay4" onclick="off('overlay4')">
     (Click outside of PDF viewer to close)
-    <embed src="Portfolioitems/Walker_Lab3_report.pdf" width="90%" height="100%" border="none"/>
+    <embed src="portfolio/Portfolioitems/Walker_Lab3_report.pdf" width="90%" height="100%" border="none"/>
     
   </div> 
 
@@ -186,5 +212,5 @@
 </script>
 
 
-        <a href="mailto:w0492401@campus.nscc.ca">Reuben Walker</a>
+        
     </footer>

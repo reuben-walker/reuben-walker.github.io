@@ -1,44 +1,66 @@
+html {
+  overflow-x: hidden;
+  margin-right: calc(-1 * (100vw - 100%));
+}
+
 *{
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+  font-family: "Noto Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
 }
 
 body{
-    background-color: rgb(64, 31, 113);
-    color: rgb(253, 175, 123);
+    background-color: rgb(245, 238, 232);
+    color: rgb(0, 0, 0);
+    font-size: 14pt;
 }
 
 h1{
-    font-size: 40pt;
+    font-size: 30pt;
     text-align: center;
     text-transform: uppercase;
-    font-weight: 100;
-    letter-spacing: 10pt;
-    color: rgb(253, 175, 123);
+    font-weight: 300;
+    letter-spacing: 3px;
+    color: rgb(0, 0, 0);
 }
 
 h2{
     font-size: 24pt;
     text-align: center;
     text-transform: uppercase;
-    font-weight: 100;
+    font-weight: 300;
+    display: inline;
 }
 
 h3{
     font-size: 18pt;
-    font-weight: bold;
+    display: inline;
 }
 
 h4{
-    font-weight: bold;
+    font-weight: 400;
+    display: inline;
 }
 
 div{
-    background-color: rgb(130, 77, 116);
+    background-color: rgb(255, 255, 255);
     padding: 20px;
     padding-top: 20px;
     margin: auto;
-    width: 85%;
+    width: 60%;
     align-self: center;
+}
+
+.content{
+  background-color: rgb(255, 255, 255);
+  padding: 20px;
+  padding-top: 20px;
+  margin: auto;
+  width: 100%;
+  align-self: center;
 }
 
 #menubar{
@@ -50,11 +72,11 @@ div{
 }
 
 .menubutton{
-    background-color: rgb(130, 77, 116);
+    background-color: rgb(248, 185, 48);
     border: none;
-    color: rgb(253, 175, 123);
+    color: rgb(0, 0, 0);
     padding: 8px;
-    width: 15%;
+    width: 10%;
     letter-spacing: 2pt;
     text-align: center;
     text-decoration: none;
@@ -66,9 +88,9 @@ div{
   }
 
 .menubutton:hover{
-    background-color: rgb(190, 123, 114);
+    background-color: rgb(248, 206, 114);
     border: none;
-    color: white; 
+    color: black; 
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -76,9 +98,9 @@ div{
   }
 
 .menubutton:active{
-    background-color: rgb(64, 31, 113);
+    background-color: rgb(165, 113, 0);
     border: none;
-    color: rgb(253, 175, 123);
+    color: rgb(255, 255, 255);
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -92,7 +114,7 @@ a:link{
 }
 
 a:visited{
-    color:black;
+    color:rgb(122, 16, 82);
     font-style:normal;
     text-decoration: none;
 }
@@ -108,28 +130,11 @@ a:active{
     text-decoration: none;
 }
 
-.div1{
-    margin: auto;
-    color: white;
-    background-color: rgb(190, 123, 114);
-    border: none;
-    padding: 20px;
-    width: 80%;
-}
-
 footer{
     padding: 20px;
     margin: auto;
     width: 20%;
     text-align: center;
-}
-
-.flex-container{
-    display:flex;
-    margin: auto;
-    width: 85%;
-    justify-content: center;
-    flex-grow:auto;
 }
 
 .column{
@@ -146,14 +151,46 @@ footer{
   clear: both;
 }
 
+.flex-container{
+  display:flex;
+  width: 60%;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: left;
+}
+
 .flex-text{
-    width: 100%;
-    background-color: transparent;
-    padding: 20px;
+  display: flex;
+  width: 100%;
+  background-color: transparent;
+  padding: 20px;
 }
 
 .flex-img{
-    margin: auto;
+  display: flex;
+  justify-content: flex-start;
+  align-self: left;
+}
+
+.portfolio-list{
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: left;
+}
+
+.portfolio-item{
+  display: flex;
+  width: 100%;
+  background-color: transparent;
+  justify-content: flex-start;
+  align-items:left;
+}
+
+.portfolio-itemdesc{
+  display: flex;
+  flex-grow: 5;
 }
 
 div.gallery{
@@ -222,4 +259,9 @@ div.desc {
     margin-left: auto;
     margin-right: auto;
     height: 100%;
+}
+
+hr{
+  margin-left: 0;
+  margin-right: 0;
 }
