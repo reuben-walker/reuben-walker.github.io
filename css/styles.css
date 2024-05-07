@@ -170,6 +170,7 @@ footer{
   display: flex;
   justify-content: flex-start;
   align-self: left;
+  padding-top: 20px;
 }
 
 .portfolio-list{
@@ -178,6 +179,7 @@ footer{
   flex-direction: column;
   justify-content: flex-start;
   align-items: left;
+  padding: 0px;
 }
 
 .portfolio-item{
@@ -186,11 +188,16 @@ footer{
   background-color: transparent;
   justify-content: flex-start;
   align-items:left;
+  padding: 0px;
 }
 
 .portfolio-itemdesc{
-  display: flex;
-  flex-grow: 5;
+  background-color: rgb(255, 255, 255);
+  padding: 0px;
+  padding-left: 20px;
+  margin: none;
+  width: 100%;
+  align-self: center;
 }
 
 div.gallery{
