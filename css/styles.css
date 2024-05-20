@@ -45,6 +45,19 @@ h4{
     display: inline;
 }
 
+td{
+  vertical-align: top;
+}
+
+.clicktoenlarge{
+  font-size: 12pt;
+  text-align: center;
+}
+
+.small{
+  font-size: 10pt;
+}
+
 div{
     background-color: rgb(255, 255, 255);
     padding: 20px;
@@ -152,7 +165,7 @@ footer{
 }
 
 .flex-container{
-  display:flex;
+  display: flex;
   width: 60%;
   flex-direction: row;
   justify-content: flex-start;
@@ -171,6 +184,7 @@ footer{
   justify-content: flex-start;
   align-self: left;
   padding-top: 20px;
+  padding-right: 20px;
 }
 
 .portfolio-list{

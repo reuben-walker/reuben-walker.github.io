@@ -1,0 +1,665 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+    <title>Intro to MapView - Create a 2D map | Sample | ArcGIS Maps SDK for JavaScript 4.29</title>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #queryDiv,
+      #resultDiv {
+        min-width: 250px;
+        font-size: 14px;
+        padding: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      #bufferNum {
+        width: 90%;
+        margin: 2.5em auto 0;
+      }
+
+      .count {
+        white-space: nowrap;
+        font-size: 14px;
+        font-weight: bold;
+        display: inline-block;
+      }
+
+      #esri-sidebar {
+        z-index: 99;
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 320px;
+      }
+
+      #weather-display {
+        z-index: 99;
+        position: absolute;
+        height: 100%;
+        width: 200px;
+      }
+
+      .text {
+        font-size: 14px;
+        color: black;
+        padding: 3%;
+        background-color: white;
+        line-height: 25px;
+      }
+
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <script>
+      require([
+        "esri/Map", 
+        "esri/views/MapView", 
+        "esri/portal/PortalItem",
+        "esri/layers/Layer",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Slider",
+        "esri/Graphic",
+        "esri/core/promiseUtils",
+        "esri/layers/ImageryLayer",
+        "esri/layers/support/RasterFunction",
+        "esri/renderers/RasterColormapRenderer",
+        "esri/symbols/SimpleFillSymbol",
+        "esri/symbols/SimpleLineSymbol",
+        "esri/widgets/LayerList", 
+        "esri/core/reactiveUtils",
+        "esri/rest/locator",
+        "esri/widgets/Popup",
+        "esri/widgets/Expand",
+        "esri/geometry/Extent",
+        "esri/PopupTemplate",
+        "esri/widgets/Legend"
+      ], (Map, 
+          MapView, 
+          PortalItem, 
+          Layer, 
+          FeatureLayer, 
+          Slider, 
+          Graphic, 
+          promiseUtils, 
+          ImageryLayer, 
+          RasterFunction, 
+          RasterColormapRenderer, 
+          SimpleFillSymbol, 
+          SimpleLineSymbol,
+          LayerList,
+          reactiveUtils,
+          locator,
+          Popup,
+          Expand,
+          Extent,
+          PopupTemplate,
+          Legend) => {
+
+        //Create a new map
+        const map = new Map({
+          basemap: "satellite"
+        });
+
+        // Create a MapView
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          constraints: {
+            rotationEnabled: false
+          },
+          zoom: 11,
+          center: [-64.31, 44.37] // longitude, latitude
+        });
+
+        // API key for OpenWeather
+        let weatherApiKey = "541d96b6b382c90aeda4eef4a36586a5"
+
+        // Set up a locator url using the world geocoding service
+        const locatorUrl = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
+        
+
+        // Find and add the flooding raster layer (from AGOL link)
+        const raster_floodingLayer = new ImageryLayer({
+          url: "https://iservices.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/studyarea_DEM_dynamic/ImageServer",
+          opacity: 0.5
+        })
+        map.add(raster_floodingLayer);
+
+        // Find and add the dry and flooded building footprint feature layer (from AGOL link)
+        const dryBuildingFootprints = new FeatureLayer({
+          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/Building_Footprints/FeatureServer",
+          outfields: ["*"],
+          popupEnabled: true,
+          popupTemplate: {
+            title: "{OBJECTID}",
+            content: "{Z_Min}"
+          }
+        })
+        map.add(dryBuildingFootprints);
+
+        // Note: the flooded building footprints use the same layer as the dry building footprints but are symbolized differently
+        // and referenced differently in the JavaScript
+        const floodedBuildingFootprints = new FeatureLayer({
+          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/Building_Footprints/FeatureServer",
+          renderer: {
+            type: 'simple',
+            symbol: {
+              type: 'simple-fill',
+              color: [255,0,0,1]
+            }
+          }
+
+        })
+        map.add(floodedBuildingFootprints);
+
+        // Set a default definition expression to filter out water access roads and ferry routes from the roads layers
+        const roadDefaultDefinitionExpression = "ROADCLASS NOT IN ('FC', 'WA')";
+
+        // Find and add the dry and flooded roads layers
+        const NS_roads_dry = new FeatureLayer({
+          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/NS_Roads/FeatureServer",
+          renderer: {
+            type: 'unique-value',
+            field: 'ROADCLASS',
+            definitionExpression: roadDefaultDefinitionExpression,
+            defaultSymbol: {
+              type: 'simple-line'
+            },
+            uniqueValueInfos: [
+              {
+              //Driveway
+              value: "DR",
+              symbol: {
+                type: 'simple-line',
+                color: [237,219,178,1],
+                width: 0.44
+                }
+              },
+              {
+              //Local road
+              value: "LO",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Track
+              value: "TK",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Trail
+              value: "TR",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Dryweather road
+              value: "DW",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Arterial road
+              value: "AT",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Local Arterial road
+              value: "LA",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Collector road
+              value: "CO",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Local collector
+              value: "LC",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Highway
+              value: "HW",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Ramp
+              value: "RP",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Seasonal road
+              value: "SE",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Water Access
+              value: "WA",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              },
+              {
+              //Ferry Connector
+              value: "FC",
+              symbol: {
+                type: 'simple-line',
+                color: [17,229,19,1],
+                width: 1
+                }
+              }
+          ]
+          }
+        })
+        map.add(NS_roads_dry);
+
+        // Note: like the building layers, the flooded roads reference the same layer and are symbolized and referred to differntly
+        const NS_roads_flooded = new FeatureLayer({
+          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/NS_Roads/FeatureServer",
+          definitionExpression: roadDefaultDefinitionExpression,
+          renderer: {
+            type: 'simple',
+            symbol: {
+              type: 'simple-line',
+              color: [255,0,0,1],
+              width: 3
+            }
+          }
+        })
+        map.add(NS_roads_flooded);
+
+        // Find and add the emergency shelters feature layer (from AGOL link)
+        const emergencyShelters = new FeatureLayer({
+          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/Emergency_Shelters/FeatureServer"
+        })
+        map.add(emergencyShelters);
+      
+        // Adds the division for the flood level slider and to the bottom left
+        view.ui.add([queryDiv], "bottom-left");
+
+        // Create the flood level slider
+        const floodLevelSlider = new Slider({
+          container: "bufferNum",
+          min: 0,
+          max: 150,
+          steps: 1,
+          visibleElements: {
+            labels: true
+          },
+          precision: 0,
+          labelFormatFunction: (value, type) => {
+            value
+            return `${(value/10).toString()} m`;
+          },
+          values: [0]
+        });
+
+        // Init flooding level & color
+        var floodingLevel = 0
+        updateFloodDisplay(floodingLevel);
+
+        // Get flooding level from slider
+        floodLevelSlider.on(["thumb-change", "thumb-drag"], floodingLevelChanged);
+
+        // Function that executes when flooding level changes
+        function floodingLevelChanged(event) {
+          floodingLevel = event.value/10
+          updateFloodDisplay(floodingLevel)
+
+          // Query amount of flooded buildings (NOTE: this has a maximum of 2000)
+          floodedBuildingFootprints.queryFeatures({
+              where: "Z_Min <'" + floodingLevel +"'", // or any other query expression
+              returnGeometry: false,
+              outFields: ["*"]
+            }).then(function(response) {
+              const count = response.features.length;
+              document.getElementById("floodedCounts").innerHTML = "Number of flooded buildings: " + count
+            });
+        }
+
+        view.popupEnabled = false;
+        view.on("click", (event) => {
+          // Get the coordinates of the click on the view
+          const lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
+          const lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
+
+          view.openPopup({
+            // Set the popup's title to the coordinates of the location
+            location: event.mapPoint // Set the location of the popup to the clicked location
+          });
+
+          const params = {
+            location: event.mapPoint
+          };
+
+          // Display the popup
+          // Execute a reverse geocode using the clicked location
+          locator
+            .locationToAddress(locatorUrl, params)
+            .then((response) => {
+              // If an address is successfully found, show it in the popup's content
+              console.log(response)
+              view.popup.title = buildAddress(response.attributes.Address,response.attributes.City,response.attributes.Region)
+              view.popup.content = response.address;
+              
+              view.popup.dockOptions = {
+                buttonEnabled: false
+              }
+              //view.popup.fetchFeatures(location)
+            })
+            .catch(() => {
+              // If the promise fails and no result is found, show a generic message
+              view.popup.content = "No address was found for this location";
+            });
+
+            // Function to construct the address title from the returned address data
+            function buildAddress(address,city,region){
+              var fulladdress = ""
+              if (address != ""){
+                fulladdress = fulladdress + address + ", "
+              }
+
+              if (city != ""){
+                fulladdress = fulladdress + city + ", "
+              }
+
+              if (region != ""){
+                fulladdress = fulladdress + region
+              }
+
+              return fulladdress
+              console.log(fulladdress)
+            }
+
+            
+        }); 
+
+        /*
+        dryBuildingFootprints.on("click", function(event) {
+          
+          
+          // Get the feature that was clicked
+          const feature = event.graphic;
+
+          // Get the lat and lon of the point clicked
+          const lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
+          const lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
+
+          dryBuildingFootprints.popupTemplate = {
+            title: "{OBJECTID}",
+            content: "A"
+          }
+
+          console.log("a")
+
+          locator
+            .locationToAddress(locatorUrl, params)
+            .then((response) => {
+              // If an address is successfully found, show it in the popup's content
+              var address = response.address;
+
+              });
+
+          // Display the popup
+          view.popup.open({
+            features: [feature],
+            location: event.mapPoint,
+            content: [
+              {
+                type: "text",
+                text: "aahahaaa"
+              },
+
+              {
+                type: "text",
+                text: "text2"
+
+              }
+            ]
+          }); 
+          
+
+        }); */
+        
+        // Function to filter which features are flooded, and call the pixel filter function
+        function updateFloodDisplay(floodingLevel) {
+          raster_floodingLayer.pixelFilter = createPixelFilter(floodingLevel);
+          floodedBuildingFootprints.definitionExpression = "Z_Min < '" + floodingLevel + "'";
+          dryBuildingFootprints.definitionExpression = "Z_Min > '" + floodingLevel + "'OR Z_Min = null";
+          NS_roads_flooded.definitionExpression = roadDefaultDefinitionExpression + " AND " + "Z_Min < '" + floodingLevel + "'";
+          NS_roads_dry.definitionExpression = roadDefaultDefinitionExpression + " AND " + "Z_Min > '" + floodingLevel + "'OR Z_Min = null";
+          raster_floodingLayer.redraw();
+        }
+
+        // Pixel filter function. Only turns on any pixels below the flooding level, and makes all pixels blue
+        function createPixelFilter(floodingLevel) {
+          return function (pixelData) {
+            if (!pixelData || !pixelData.pixelBlock) return;
+
+            const pixels = pixelData.pixelBlock.pixels[0];
+            const mask = new Uint8Array(pixels.length);
+
+            const rBand = new Uint8Array(pixels.length);
+            const gBand = new Uint8Array(pixels.length);
+            const bBand = new Uint8Array(pixels.length);
+
+          
+            for (let i = 0; i < pixels.length; i++) {
+              mask[i] = pixels[i] <= floodingLevel ? 1 : 0;
+
+              rBand[i] = 50;
+              gBand[i] = 159;
+              bBand[i] = 237;
+            }
+
+  
+            pixelData.pixelBlock.mask = mask;
+            pixelData.pixelBlock.pixels = [rBand, gBand, bBand];
+            pixelData.pixelBlock.pixelType = "u8";
+          };}
+
+        // Sidebar for flooded buildings info
+        const expand = new Expand({
+          expandIconClass: "esri-icon-menu",
+          expandTooltip: "Open statistics",
+           collapseIconClass: "esri-icon-close",
+           collapseTooltip: "Close",
+          view: view,
+          content: document.getElementById("esri-sidebar")
+        });
+
+        view.ui.add(expand, "top-right");
+
+          // Legend sidebar
+        const legend = new Legend({
+          view: view,
+        });
+
+        // Legend sidebar
+        const legendExpand = new Expand({
+          expandIconClass: "esri-icon-legend",
+          expandTooltip: "Open legend",
+           collapseIconClass: "esri-icon-close",
+           collapseTooltip: "Close",
+          view: view,
+          content: legend
+        });
+
+        view.ui.add(legendExpand, "top-left");
+
+        // Display for weather info
+        const weatherInfo = new Expand({
+          expandIconClass: "esri-icon-partly-cloudy",
+          expandTooltip: "Open weather & location",
+          collapseIconClass: "esri-icon-close",
+          collapseTooltip: "Close",
+          view: view,
+          content: document.getElementById("weather-display")
+        });
+
+        view.ui.add(weatherInfo, "top-left");
+
+        // GetWeather Function
+        const getWeather = async (mapLat,mapLon) => {
+          console.log("fetched weather")
+          await axios.get(`
+              https://api.openweathermap.org/data/2.5/weather?lat=${mapLat}&lon=${mapLon}&exclude=daily&appid=${weatherApiKey}
+          `)
+          .then(response => {
+            let data    = response.data
+            let weather = data.weather[0].main
+            var temp = (data.main.temp - 273.15).toFixed(1) //Temperature is returned in Kelvin so this converts it to Celsius
+            var weatherDescription = data.weather[0].description
+            var cityName = data.name
+            var countryName = data.sys.country
+            document.getElementById("weatherDisplayText").innerHTML = weatherDescription.charAt(0).toUpperCase() + weatherDescription.slice(1) + "<br>" + temp + " &deg;C <br> City: " + cityName + ", " + countryName;
+          })
+          .catch(err =>{
+            console.error(err)
+          })
+        }
+          
+        // Fetch all live data every 1 minute
+        view.watch("extent", (extent) => {
+          const center = extent.center;
+          viewLat = center.latitude;
+          viewLon = center.longitude;
+        });
+
+        let becameStationary = false
+        let stationaryTimer
+
+        view.watch("stationary", (isStationary) => {
+          if (isStationary && !becameStationary) {
+            stationaryTimer = setTimeout(() => {
+              getWeather(viewLat,viewLon);
+              becameStationary = true;
+            }, 1000);
+          }
+          else if (!isStationary){
+            clearTimeout(stationaryTimer);
+            becameStationary = false;
+          }
+        });
+
+        const intervalID = setInterval(() => {
+            getWeather(viewLat,viewLon)
+          },300000)
+
+        // Declare the latitude and longitude that the program will read interpolated tidal data from
+        const tidalLat = 44.373
+        const tidalLong = -64.309
+
+        // Get the current date and time
+        const currentDate = new Date();
+
+        // Format the date and time to the desired format
+        const formattedDate = currentDate.toISOString().slice(0, 19) + 'Z';
+
+        console.log(formattedDate); // Output example: 2024-05-08T10:25:00Z
+
+        const lunenbergStationID = '5cebf1df3d0f4a073c4bbcb1'
+
+        // API call for water level from Government of Canada
+        axios.get(`
+          https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${lunenbergStationID}/data?time-series-code=wlp&from=2024-05-08T00%3A00%3A00Z&to=2024-05-09T00%3A00%3A00Z
+        `)
+          .then(function (response) {
+            console.log(response.data)
+            //console.log(response.data.responseItems[0].waterLevel)
+            })
+            .catch(function (error) {
+            console.log(error)
+          })
+
+      });
+
+      
+
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv">
+
+      <div id="esri-sidebar">
+        <div class="text">
+          <div id="floodedCounts">Number of flooded buildings:</div>
+        </div>
+      </div>
+
+      <div id="weather-display">
+        <div class="text">
+          <div id="weatherDisplayText"></div>
+        </div>
+      </div>
+    
+      <div id="queryDiv" class="esri-widget">
+        <div class="tooltip">
+            <label for="bufferNum">Set a flooding level:</label>
+            <div id="bufferNum"></div>
+          </div>
+      </div>
+
+  </div>
+
+  </body>
+</html>

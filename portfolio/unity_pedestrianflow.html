@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UFT-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Reuben Walker - Portfolio</title>
+        <link rel="stylesheet" href="../css/styles.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    </head>
+
+    <body>
+      <div class="flex-container"> 
+        <div class="content" style="padding-top: 0px;">
+        
+        <h1 style="margin-top: 0px;">Simulating Pedestrian Flow in Unity Using a NavMesh</h1>
+        <p style="text-align: center;">Simon Fraser University, 3D GIScience <br> 
+          March 2020</p>
+        <div class="flex-container" style="justify-content: center;"><img src="Portfolioitems/navmesh/Picture1.png" width = 100%></div>
+
+        
+
+        <hr>
+        <h3>Project Description:</h3>
+        <br>
+        Using Unity, I simulated pedestrian flow around the transportation centre at Simon Fraser University. The area being studied has a high
+        volume of pedestrians, as people move to/from the transit stops, as well as moving between different classes. Students are represented
+        by "agents", which can navigate to their destination while avoiding collisions with other agents. <br><br>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/navmesh/Picture1.png"><img class="flex-img" src="Portfolioitems/navmesh/Picture1.png" alt="Area setup" width="600"></a>
+          <div class="portfolio-itemdesc">
+            The top level of the structure has 8 differently-colored destination markers, representing places that different students might want to go.
+            On the ground level, there is a brown destination marker that represents the pick-up bay for the bus stop.
+            Near the bottom of the image there is a crowd of students who just got off the bus, and are standing in the drop-off bay. 
+            All of the "students" are colored by their destination. Note that none of the students who just got dropped off the bus are headed 
+            for the pick-up bay, and none of the students are trying to go to the same side of the structure from which they came.
+          </div>
+        </div>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/navmesh/Picture2.png"><img class="flex-img" src="Portfolioitems/navmesh/Picture2.png" alt="Navmesh" width="600"></a>
+          <div class="portfolio-itemdesc">
+            This picture shows the NavMesh, representing the area that the students can move within.
+          </div>
+        </div>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/navmesh/Picture3.png"><img class="flex-img" src="Portfolioitems/navmesh/Picture3.png" alt="Simulation" width="600"></a>
+          <div class="portfolio-itemdesc">
+            Screenshot of the simulation running.
+          </div>
+        </div>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/navmesh/Picture4.png"><img class="flex-img" src="Portfolioitems/navmesh/Picture4.png" alt="Navmesh" width="600"></a>
+          <div class="portfolio-itemdesc">
+            Screenshot of the simulation running with NavMesh turned off.
+          </div>
+        </div>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/navmesh/Picture5.png"><img class="flex-img" src="Portfolioitems/navmesh/Picture5.png" alt="Trails" width="600"></a>
+          <div class="portfolio-itemdesc">
+            Simulation running with color-differentiated trails.
+          </div>
+        </div>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/navmesh/Picture6.png"><img class="flex-img" src="Portfolioitems/navmesh/Picture6.png" alt="Trails" width="600"></a>
+          <div class="portfolio-itemdesc">
+            Simulation running with color-differentiated trails, with agent radius increased to 150% of the default. This simulates a situation in 
+            which people prefer more personal space.
+          </div>
+        </div>
+
+        <br>
+
+        There are a few aspects of the agent's behavior that do not reflect real-world pedestrian behavior:
+        <ul>
+          <li>Many of the agents crossing from one side of the top level to the other didn’t show any aversion 
+            to walking up or down stairs. In real life, many people would opt to take one of the side walkways to 
+            avoid going up or down stairs.</li>
+          <li>Agents tended to take the straightest path to their destination without looking ahead. Real people 
+            might spot crowds from a distance and opt to take a less crowded path instead of taking a more direct,
+            but crowded route.</li>
+          <li>The NavMesh was set up assuming that students would only cross the road at designated crosswalks
+            or crossing point. In reality, many people jaywalk.</li>
+          <li>What individuals are able to see would impact their decisions. For example, people at the top of stairs 
+            could make more informed decisions about where to navigate than people turning around a blind corner.</li>
+          </ul>
+
+
+        <h3>Software Used:</h3>
+        <ul>
+          <li>Unity</li>
+        </ul>
+
+        <br>
+
+        <a href="../portfolio.html"><button class="menubutton">Back</button></a> 
+        </div>
+        
+      
+      </div>
+   
+    </body>
+
+    <footer>
+   
+    </footer>

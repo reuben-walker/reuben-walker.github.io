@@ -1,0 +1,374 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  
+    <title>Coastal 4Runner 3D Storm Surge Simulator</title>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .esri-ui-top-right {
+        max-height: 100%;
+      }
+
+      #sliderDiv,
+      #resultDiv {
+        min-width: 250px;
+        font-size: 14px;
+        padding: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .geometry-options {
+        display: flex;
+        flex-direction: row;
+      }
+      .geometry-button {
+        flex: 1;
+        border-style: solid;
+        border-width: 1px;
+        border-image: none;
+      }
+      .geometry-button-selected {
+        background: #4c4c4c;
+        color: #fff;
+      }
+
+      #bufferNum {
+        width: 90%;
+        margin: 2.5em auto 0;
+      }
+
+      .count {
+        white-space: nowrap;
+        font-size: 14px;
+        font-weight: bold;
+        display: inline-block;
+      }
+
+      #customTextDiv {
+        min-width: 150px;
+        font-size: 14px;
+        padding: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      #weatherDiv {
+        min-width: 150px;
+        font-size: 14px;
+        padding: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/dark/main.css" />
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <script>
+      require([
+        "esri/WebScene",
+        "esri/views/SceneView",
+        "esri/layers/GraphicsLayer",
+        "esri/widgets/Sketch/SketchViewModel",
+        "esri/widgets/Slider",
+        "esri/geometry/geometryEngine",
+        "esri/Graphic",
+        "esri/core/promiseUtils",
+        "esri/layers/GroupLayer",
+        "esri/layers/support/FeatureFilter",
+        "esri/rest/query",
+        "esri/layers/FeatureLayer",
+        "esri/rest/support/Query",
+        "esri/symbols/PolygonSymbol3D",
+        "esri/layers/ImageryLayer",
+        "esri/layers/support/MosaicRule",
+        "esri/renderers/ClassBreaksRenderer",
+        "esri/widgets/Search",
+        "esri/geometry/Extent",
+      ], (WebScene, 
+          SceneView, 
+          GraphicsLayer, 
+          SketchViewModel, 
+          Slider, 
+          geometryEngine, 
+          Graphic, 
+          promiseUtils, 
+          FeatureLayer, 
+          PolygonSymbol3D, 
+          ImageryLayer, 
+          MosaicRule, 
+          ClassBreaksRenderer, 
+          Search, 
+          Extent) => {
+
+        // Load webscene and display it in a SceneView
+        
+        // API key for OpenWeather
+        let weatherApiKey = "541d96b6b382c90aeda4eef4a36586a5"
+
+        // Load Global WebScene
+        const webscene = new WebScene({
+          portalItem: {
+            id: "1128cc6577f546d097b3589605b09777"
+          }
+        });
+
+        // create the SceneView
+        const view = new SceneView({
+          container: "viewDiv",
+          map: webscene
+        });
+
+        window.view = view;
+
+        webscene.load().then(() => {
+
+          // Loads the non-flooded building layer as a feature layer
+          dryBuildingLayer = webscene.layers.find((layer) => {
+            return layer.title === "Building Footprints";
+          });
+          dryBuildingLayer.outFields = ["*"]
+
+          // Loads the flooded building layer as a feature layer
+          floodedBuildingLayer = webscene.layers.find((layer) => {
+          return layer.title === "Flooded Buildings";
+          });
+          floodedBuildingLayer.outFields = ["*"]
+          floodedBuildingLayer.definitionExpression = "false";
+          floodedBuildingLayer.visible = "true";
+ 
+          // Loads the flooding layers as a group layer, with exclusive visibility meaning only one flooding level can be visible at a time
+          floodingGroupLayer = webscene.layers.find((layer) => {
+            return layer.title === "stormsurge_poly_v2" && layer.type === "group";
+            visiblityMode : "exclusive"
+          });
+
+          // Loads the roads as a feature layer
+          dryRoadsLayer = webscene.layers.find((layer) => {
+          return layer.title === "NS_Roads";
+          });
+          dryRoadsLayer.outFields = ["*"]
+
+          // Loads the flooded roads as a feature layer
+          floodedRoadsLayer = webscene.layers.find((layer) => {
+          return layer.title === "NS_Roads_flooded";
+          });
+          floodedRoadsLayer.outFields = ["*"]
+          floodedRoadsLayer.definitionExpression = "false";
+
+          // Loads the flooding Raster Layer
+          floodingRaster = webscene.layers.find((layer) => {
+          return layer.title === "studyarea_DEM_dynamic";
+          });
+          floodingRaster.visible = false;
+          
+         // Create an array to contain all the flooding layers
+        flooding_layers = [];
+
+        // Add the flooding layers to the array
+        flooding_layers[0] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 0m poly";});
+
+        flooding_layers[1] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 1m poly";});
+
+        flooding_layers[2] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 2m poly";});
+
+        flooding_layers[3] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 3m poly";});
+
+        flooding_layers[4] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 4m poly";});
+
+        flooding_layers[5] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 5m poly";});
+
+        flooding_layers[6] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 6m poly";});
+
+        flooding_layers[7] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 7m poly";});
+
+        flooding_layers[8] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 8m poly";});
+
+        flooding_layers[9] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 9m poly";});
+
+        flooding_layers[10] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 10m poly";});
+
+        flooding_layers[11] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 11m poly";});
+
+        flooding_layers[12] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 12m poly";});
+
+        flooding_layers[13] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 13m poly";});
+
+        flooding_layers[14] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 14m poly";});
+
+        flooding_layers[15] = floodingGroupLayer.layers.find((childLayer) => {
+         return childLayer.title === "Stormsurge 15m poly";});
+
+        });
+
+        // Adds the division for the flood level slider to the bottom left
+        view.ui.add([sliderDiv], "bottom-left");
+
+        // Adds another division for weather
+        view.ui.add([weatherDiv], "top-right");
+
+        // Create the flood level slider
+        const floodLevelSlider = new Slider({
+          container: "bufferNum",
+          min: 0,
+          max: 15,
+          steps: 1,
+          visibleElements: {
+            labels: true
+          },
+          precision: 0,
+          labelFormatFunction: (value, type) => {
+            return `${value.toString()}m`;
+          },
+          values: [0]
+        });
+
+        // Get flooding level from slider
+        floodLevelSlider.on(["thumb-change", "thumb-drag"], floodingLevelChanged);
+
+        // Function that executes when flooding level changes
+        function floodingLevelChanged(event) {
+          floodingLevel = event.value
+          displayFloodingLayer(floodingLevel)
+          queryBuildings(floodingLevel)
+          
+
+          floodedBuildingLayer.definitionExpression = "Z_MIN <= '" + floodingLevel + "'";
+          dryBuildingLayer.definitionExpression = "Z_MIN > '" + floodingLevel + "'";
+
+          floodedRoadsLayer.definitionExpression = "Z_Min <= '" + floodingLevel + "'";
+          dryRoadsLayer.definitionExpression = "Z_Min > '" + floodingLevel + "'";
+        }
+
+        // Turns on the appropriate flooding sub-layer according to the flooding level
+        function displayFloodingLayer(floodingLevel) {
+          flooding_layers[floodingLevel].visible = true;
+        }
+
+        // GetWeather Function
+        const getWeather = async (lat,lon) => {
+          await axios.get(`
+              https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&exclude=daily&appid=${weatherApiKey}
+          `)
+          .then(response => {
+              let data    = response.data
+              let weather = data.weather[0].main
+              var temp = (data.main.temp - 273.15).toFixed(1) //Temperature is returned in Kelvin so this converts it to Celsius
+              var weatherDescription = data.weather[0].description
+              var cityName = data.name
+              var countryName = data.sys.country
+              switch (weather) { 
+                  case 'Rain':
+                  view.environment.weather = {
+                      type: "rainy", 
+                      cloudCover:data.clouds.all/100, 
+                      precipitation:0.6
+                  }    
+                      break;
+                  case 'Snow':
+                  view.environment.weather = {
+                      type: "snowy",                                    
+                      cloudCover:data.clouds.all/100,
+                      precipitation:0.6
+                  }
+                      break;
+                  case 'Clouds':
+                  view.environment.weather = {
+                      type: "cloudy",                                    
+                      cloudCover:data.clouds.all/100
+                  }
+                      break;
+                  default:
+                      break;
+              }
+              document.getElementById("customTextDiv").innerHTML = weatherDescription.charAt(0).toUpperCase() + weatherDescription.slice(1) + "<br>" + temp + " &deg;C <br> City: " + cityName + ", " + countryName;
+          })
+          .catch(err =>{
+              console.error(err)
+          })
+      }
+
+      // Call get weather upon load
+      getWeather(44.353416,-64.241494)
+      
+      // Set up latitude and longitude variables
+      let lat, lon;
+
+      // Change lat and lon according to where the view is centered
+      view.watch("extent", (extent) => {
+        const center = extent.center;
+        lat = center.latitude;
+        lon = center.longitude;
+      });
+
+      // Get the weather for the current location if the view has recently been moved
+      let becameStationary = false
+      let stationaryTimer
+
+      view.watch("stationary", (isStationary) => {
+        if (isStationary && !becameStationary) {
+          stationaryTimer = setTimeout(() => {
+            getWeather(lat,lon);
+            becameStationary = true;
+          }, 1000);
+        }
+        else if (!isStationary){
+          clearTimeout(stationaryTimer);
+          becameStationary = false;
+        }
+      });
+
+      // Fetch all live data every 1 minute
+      const intervalID = setInterval(() => {
+          getWeather(lat,lon)
+        },300000)
+
+    });    
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+
+    <div id="sliderDiv" class="esri-widget">
+        <div class="tooltip">
+            <label for="bufferNum">Set a flooding level:</label>
+            <div id="bufferNum"></div>
+          </div>
+    </div>
+
+    <div id="weatherDiv" class="esri-widget">
+      <div class="tooltip">
+          <div id="customTextDiv">
+      
+          </div>
+        </div>
+  </div>
+
+  </body>
+</html>

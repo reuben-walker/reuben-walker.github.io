@@ -3,33 +3,92 @@
     <head>
         <meta charset="UFT-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Reuben Walker - Image Enhancement</title>
+        <title>Reuben Walker - Portfolio</title>
         <link rel="stylesheet" href="../css/styles.css">
-
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     </head>
 
     <body>
-      <header>
-        <div id ="menubar">
-          <a href="../index.html"><button class="menubutton">Home</button></a> 
-          <a href="../portfolio.html"><button class="menubutton">Portfolio</button></a> 
-          <a href="../resume.html"><button class="menubutton">Resumé</button></a> 
-          <a href="../contact.html"><button class="menubutton">Contact</button></a> 
-      </div>
 
-      <h1>Portfolio</h1>
-   
-      </header>
-      <div>
-      <h2>Remote Sensing Image Enhancements for Idnetifying Old Growth Forest</h2>
-      <img src="Portfolioitems/oldgrowth_poster.png" width = 100%>
-      <br><br>
-      Completed for REMS 5001 - Fundamentals of Remote Sensing at NSCC Centre of Geographic Sciences in November 2023 
-      <h3>Project Description:</h3>
-      This map was created from the results of a supervised spectral classification that I conducted in PCI catalyst. 
-      I identified training areas corresponding to barren, forested, urban, and herbaceous land cover, as well as water, 
-      and then used spectral classification to automatically classify the rest of the area. I then brought the resulting 
-      raster dataset into ArcGIS Pro and created the final map layout.<br><br>
+      <div class="flex-container"> 
+        <div class="content" style="padding-top: 0px;">
+        
+        <h1 style="margin-top: 0px;">Remote Sensing Image Enhancements for Identifying Old Growth Forests</h1>
+        <p style="text-align: center;">NSCC Centre of Geographic Sciences, Fundamentals of Remote Sensing <br> 
+          November 2023</p>
+        <a href="Portfolioitems/image_enhancements/oldgrowth_poster.png"><img src="Portfolioitems/image_enhancements/oldgrowth_poster.png" width = 100%>
+        <p class="clicktoenlarge">(Click to enlarge)</p></a>
+        
+  
+        <hr>
+        <h3>Project Description:</h3>
+        <br>
+
+        The poster describes the process of using image enhancements in PCI Catalyst to allow the viewer to distinguish
+        between old growth and new growth forests in Landsat-8 imagery of southwestern Vancouver Island. Here is an additional summary of the process:<br>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/image_enhancements/clip_2.png"><img class="flex-img" src="Portfolioitems/image_enhancements/clip_2.png" alt="RGB Composite" height="400"></a>
+          <div class="portfolio-itemdesc">
+            This is the standard RGB composite image of the study area. In this image, the new-growth and old-growth forested areas are harder to tell apart. 
+            Old-growth forested areas appear slightly darker, but the shadows from the mountainous terrain make the distinction difficult. The goal of 
+            the image enhancement would be to make the old-growth and new-growth forests easier to visually discern, and to 
+            reduce the effect of the shadows from the mountains.
+          </div>
+        </div>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/image_enhancements/unenhanced_composite.png"><img class="flex-img" src="Portfolioitems/image_enhancements/unenhanced_composite.png" alt="654 Composite" height="400"></a>
+          <div class="portfolio-itemdesc">
+            First, a 654 band composite was applied to the image. (Note: this project used Landsat-8 data, so this would be a 543 composite 
+            if using Landsat-7 or earlier) The band composite was chosen because spectral analysis revealed that old-growth 
+            and new-growth forested areas had a different spectral response in bands 5 and 6 (NIR and SWIR1) which could help
+            the viewer distinguish between the two land cover types.
+          </div>
+        </div>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/image_enhancements/stan.png"><img class="flex-img" src="Portfolioitems/image_enhancements/stan.png" alt="Square root enhancement" height="400"></a>
+          <div class="portfolio-itemdesc">
+            Next, a standard square root enhancement was applied to the image. This image enhancement stretches values in the lower end 
+            of the range, making them brighter overall as well as more distinguishable from each other. This helps distinguish shadowed
+            areas from water, as well as making the different types of forest cover easier to distinguish. However, this enhancement could
+            still benefit from more contrast between the different forested areas. 
+          </div>
+        </div>
+
+        <div class="portfolio-item">
+          <a href="Portfolioitems/image_enhancements/cust.png"><img class="flex-img" src="Portfolioitems/image_enhancements/cust.png" alt="Custom enhancement" height="400"></a>
+          <div class="portfolio-itemdesc">
+            Finally, a custom image enhancement was applied to the image. This custom enhancement differs from the square root enhancement
+            in that an adaptive enhancement is applied to the NIR band, which is mapped to green. This enhancement was chosen for this channel
+            because the old-growth and new-growth forested areas display the most difference in this band. The resulting image displays old-growth
+            forest as a dark purplish green, and new-growth forested areas as a lighter green. 
+          </div>
+        </div>
+
+        <br>
+
+        <h3>Software Used:</h3>
+          <ul>
+            <li>PCI Catalyst Focus</li>
+            <li>Esri ArcGIS Pro</li>
+            <li>Microsoft PowerPoint</li>
+          </ul>
+          
+          <h3>Data Sources:</h3>
+          <ul>
+            <li>USGS: Landsat-8 imagery</li>
+            <li>Province of British Columbia: Old growth forestry layer</li>
+            <li>Esri: Basemap</li>
+          </ul>
+
+        <br>
+
+        <a href="../portfolio.html"><button class="menubutton">Back</button></a> 
+        </div>
       
       </div>
 
@@ -37,5 +96,5 @@
     </body>
 
     <footer>
-        <a href="mailto:w0492401@campus.nscc.ca">Reuben Walker</a>
+
     </footer>

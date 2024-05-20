@@ -3,39 +3,55 @@
     <head>
         <meta charset="UFT-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Reuben Walker - Annapolis Valley Specral Classification</title>
+        <title>Reuben Walker - Portfolio</title>
         <link rel="stylesheet" href="../css/styles.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     </head>
 
     <body>
-      <header>
-        <div id ="menubar">
-          <a href="../index.html"><button class="menubutton">Home</button></a> 
-          <a href="../portfolio.html"><button class="menubutton">Portfolio</button></a> 
-          <a href="../resume.html"><button class="menubutton">Resumé</button></a> 
-          <a href="../contact.html"><button class="menubutton">Contact</button></a> 
-      </div>
+      <div class="flex-container"> 
+        <div class="content" style="padding-top: 0px;">
+        
+        <h1 style="margin-top: 0px;">Annapolis Valley Spectral Classification</h1>
+        <p style="text-align: center;">NSCC Centre of Geographic Sciences, Fundamentals of Remote Sensing <br> 
+          November 2023 </p>
+        <a href="Portfolioitems/REMS5001_asn5.png"><img src="Portfolioitems/REMS5001_asn5.png" width = 100%>
+        <p class="clicktoenlarge">(Click to enlarge)</p></a>
+        
+        <hr>
+        <h3>Project Description:</h3>
+        <br>
+        This map is the end product of a supervised spectral classification that I conducted in PCI catalyst.
+        I used Landsat-8 imagery of the Annapolis Valley in Nova Scotia. 
+        I identified training areas corresponding to barren, forested, urban, and herbaceous land cover, in addition to water. 
+        Then, I used spectral classification to automatically classify the rest of the area based on the spectral signatures of the training areas. 
+        I then brought the resulting raster dataset into ArcGIS Pro and created the final map.<br><br>
 
-      <h1>Portfolio</h1>
-   
-      </header>
-      <div>
-      <h2>Annapolis Valley Spectral Classification</h2>
-      <img src="Portfolioitems/REMS5001_asn5.png" width = 100%>
-      <br><br>
-      Completed for REMS 5001 - Fundamentals of Remote Sensing at NSCC Centre of Geographic Sciences in December 2023 
-      <h3>Project Description:</h3>
-      This map was created from the results of a supervised spectral classification that I conducted in PCI catalyst. 
-      I identified training areas corresponding to barren, forested, urban, and herbaceous land cover, as well as water, 
-      and then used spectral classification to automatically classify the rest of the area. I then brought the resulting 
-      raster dataset into ArcGIS Pro and created the final map layout.<br><br>
+        <h3>Software Used:</h3>
+        <ul>
+          <li>PCI Catalyst Focus</li>
+          <li>Esri ArcGIS Pro</li>
+          <li>Google Earth Pro</li>
+        </ul>
+        
+        <h3>Data Sources:</h3>
+        <ul>
+          <li>USGS Earth Explorer: Landsat-8 imagery</li>
+        </ul>
+        
+
+        <br>
+
+        <a href="../portfolio.html"><button class="menubutton">Back</button></a> 
+        </div>
       
       </div>
-
    
     </body>
 
     <footer>
-        <a href="mailto:w0492401@campus.nscc.ca">Reuben Walker</a>
+
     </footer>
