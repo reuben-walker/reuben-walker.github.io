@@ -149,7 +149,7 @@
  
           // Loads the flooding layers as a group layer, with exclusive visibility meaning only one flooding level can be visible at a time
           floodingGroupLayer = webscene.layers.find((layer) => {
-            return layer.title === "stormsurge_poly_v2" && layer.type === "group";
+            return layer.title === "Storm surge polygons" && layer.type === "group";
             visiblityMode : "exclusive"
           });
 
@@ -254,9 +254,7 @@
         // Function that executes when flooding level changes
         function floodingLevelChanged(event) {
           floodingLevel = event.value
-          displayFloodingLayer(floodingLevel)
-          queryBuildings(floodingLevel)
-          
+          displayFloodingLayer(floodingLevel)          
 
           floodedBuildingLayer.definitionExpression = "Z_MIN <= '" + floodingLevel + "'";
           dryBuildingLayer.definitionExpression = "Z_MIN > '" + floodingLevel + "'";
