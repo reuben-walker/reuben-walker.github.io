@@ -2,11 +2,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    
+    <!-- Load the Axios.js library -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+
     <title>Intro to MapView - Create a 2D map | Sample | ArcGIS Maps SDK for JavaScript 4.29</title>
     <style>
       html,
       body,
+
       #viewDiv {
         padding: 0;
         margin: 0;
@@ -15,7 +19,8 @@
       }
 
       #queryDiv,
-      #resultDiv {
+      #resultDiv,
+      #floodingLevelOptions {
         min-width: 250px;
         font-size: 14px;
         padding: 10px;
@@ -51,17 +56,87 @@
         width: 200px;
       }
 
+      #settings{
+        z-index: 99;
+        position: absolute;
+        height: 100%;
+        width: 300px;
+      }
+
       .text {
         font-size: 14px;
-        color: black;
         padding: 3%;
-        background-color: white;
+        background-color: RGB(36,36,36);
         line-height: 25px;
       }
 
+       /* The switch - the box around the slider */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        vertical-align: middle;
+      }
+
+      /* Hide default HTML checkbox */
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      /* The slider */
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: green;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+
+      input:checked + .slider {
+        background-color: #2196F3;
+      }
+
+      input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+      }
+
+      input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+      }
+
+      /* Rounded sliders */
+      .slider.round {
+        border-radius: 34px;
+      }
+
+      .slider.round:before {
+        border-radius: 50%;
+      } 
+
     </style>
 
-    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/dark/main.css"/>
     <script src="https://js.arcgis.com/4.29/"></script>
 
     <script>
@@ -121,7 +196,7 @@
           constraints: {
             rotationEnabled: false
           },
-          zoom: 11,
+          zoom: 13,
           center: [-64.31, 44.37] // longitude, latitude
         });
 
@@ -130,7 +205,6 @@
 
         // Set up a locator url using the world geocoding service
         const locatorUrl = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
-        
 
         // Find and add the flooding raster layer (from AGOL link)
         const raster_floodingLayer = new ImageryLayer({
@@ -139,22 +213,96 @@
         })
         map.add(raster_floodingLayer);
 
-        // Find and add the dry and flooded building footprint feature layer (from AGOL link)
+        // Find and add the dry building footprint feature layer (from AGOL link)
         const dryBuildingFootprints = new FeatureLayer({
-          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/Building_Footprints/FeatureServer",
+          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/footprint/FeatureServer",
           outfields: ["*"],
           popupEnabled: true,
           popupTemplate: {
             title: "{OBJECTID}",
             content: "{Z_Min}"
+          },
+          renderer: {
+            type: 'unique-value',
+            field: 'FEAT_CODE',
+            defaultSymbol: {
+              type: 'simple-fill',
+              color: [217,217,217,1]
+            },
+            uniqueValueInfos: [
+              {
+              //Unclassified/Residential
+              value: "BLDG60",
+              label: "Unclassified",
+              symbol: {
+                type: 'simple-fill',
+                color: [217,217,217,1]
+                }
+              },
+              {
+              //Hospital
+              value: "BLHO60",
+              label: "Hospital",
+              symbol: {
+                type: 'simple-fill',
+                color: [255,153,153,1]
+                }
+              },
+              {
+              //School
+              value: "BLSH60",
+              label: "School",
+              symbol: {
+                type: 'simple-fill',
+                color: [255, 255, 153,1]
+                }
+              },
+              {
+              //School
+              value: "BLPS60",
+              label: "Police Station",
+              symbol: {
+                type: 'simple-fill',
+                color: [153,204,255,1]
+                }
+              },
+              {
+              //Fire Station
+              value: "BLFS60",
+              label: "Fire Station",
+              symbol: {
+                type: 'simple-fill',
+                color: [255, 204, 153,1]
+                }
+              },
+              {
+              //Library
+              value: "BLLI60",
+              label: "Library",
+              symbol: {
+                type: 'simple-fill',
+                color: [204, 255, 204,1]
+                }
+              },
+              {
+              //Library
+              value: "BLCC60",
+              label: "Community Centre",
+              symbol: {
+                type: 'simple-fill',
+                color: [204, 153, 255,1]
+                }
+              }
+          ]
           }
         })
         map.add(dryBuildingFootprints);
 
+        // Find and add the flooded building footprint feature layer (from AGOL link)
         // Note: the flooded building footprints use the same layer as the dry building footprints but are symbolized differently
         // and referenced differently in the JavaScript
         const floodedBuildingFootprints = new FeatureLayer({
-          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/Building_Footprints/FeatureServer",
+          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/footprint/FeatureServer",
           renderer: {
             type: 'simple',
             symbol: {
@@ -162,14 +310,14 @@
               color: [255,0,0,1]
             }
           }
-
         })
         map.add(floodedBuildingFootprints);
 
         // Set a default definition expression to filter out water access roads and ferry routes from the roads layers
+        // These will be filtered out because they are unlikely to be critical infrastructure in flooding scenarios
         const roadDefaultDefinitionExpression = "ROADCLASS NOT IN ('FC', 'WA')";
 
-        // Find and add the dry and flooded roads layers
+        // Find and add the dry roads layers
         const NS_roads_dry = new FeatureLayer({
           url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/NS_Roads/FeatureServer",
           renderer: {
@@ -183,114 +331,132 @@
               {
               //Driveway
               value: "DR",
+              label: "Driveway",
               symbol: {
                 type: 'simple-line',
-                color: [237,219,178,1],
-                width: 0.44
+                color: [249,244,170,1],
+                width: 1
                 }
               },
               {
               //Local road
               value: "LO",
+              label: "Local Road",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [249,244,170,1],
+                width: 1.5
                 }
               },
               {
               //Track
               value: "TK",
+              label: "Track",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [62,237,166,1],
+                width: 0.75,
+                style: "dash"
                 }
               },
               {
               //Trail
               value: "TR",
+              label: "Trail",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [62,237,166,1],
+                width: 0.5,
+                style: "dot"
                 }
               },
               {
               //Dryweather road
               value: "DW",
+              label: "Dryweather Road",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [249,244,170,1],
+                width: 1,
+                style: "long-dash"
                 }
               },
               {
               //Arterial road
               value: "AT",
+              label: "Arterial road",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [237,195,62,1],
+                width: 2
                 }
               },
               {
               //Local Arterial road
               value: "LA",
+              label: "Local arterial road",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [237,195,62,1],
+                width: 2
                 }
               },
               {
               //Collector road
               value: "CO",
+              label: "Collector road",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [237,195,62,1],
+                width: 2
                 }
               },
               {
               //Local collector
               value: "LC",
+              label: "Local collector road",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [237,195,62,1],
+                width: 2
                 }
               },
               {
               //Highway
               value: "HW",
+              label: "Highway",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [241,166,30,1],
+                width: 2.5
                 }
               },
               {
               //Ramp
               value: "RP",
+              label: "Ramp",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [241,166,30,1],
+                width: 2.5
                 }
               },
               {
               //Seasonal road
               value: "SE",
+              label: "Seasonal road",
               symbol: {
                 type: 'simple-line',
-                color: [17,229,19,1],
-                width: 1
+                color: [249,244,170,1],
+                width: 0.5,
+                style: "long-dash"
                 }
               },
               {
               //Water Access
+              //Note: this road type is filtered out in the map
               value: "WA",
+              label: "Water Access",
               symbol: {
                 type: 'simple-line',
                 color: [17,229,19,1],
@@ -299,7 +465,9 @@
               },
               {
               //Ferry Connector
+              //Note: this road type is filtered out in the map
               value: "FC",
+              label: "Ferry Connector",
               symbol: {
                 type: 'simple-line',
                 color: [17,229,19,1],
@@ -311,7 +479,8 @@
         })
         map.add(NS_roads_dry);
 
-        // Note: like the building layers, the flooded roads reference the same layer and are symbolized and referred to differntly
+        // Find and add the flooded roads layers
+        // These are symbolized as all red, with a thicker line
         const NS_roads_flooded = new FeatureLayer({
           url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/NS_Roads/FeatureServer",
           definitionExpression: roadDefaultDefinitionExpression,
@@ -326,11 +495,11 @@
         })
         map.add(NS_roads_flooded);
 
-        // Find and add the emergency shelters feature layer (from AGOL link)
-        const emergencyShelters = new FeatureLayer({
-          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/Emergency_Shelters/FeatureServer"
+        // Find and add the important points feature layer (from AGOL link)
+        const importantPoints = new FeatureLayer({
+          url: "https://services.arcgis.com/9PtzeAadJyclx9t7/arcgis/rest/services/POIs/FeatureServer"
         })
-        map.add(emergencyShelters);
+        map.add(importantPoints);
       
         // Adds the division for the flood level slider and to the bottom left
         view.ui.add([queryDiv], "bottom-left");
@@ -352,29 +521,97 @@
           values: [0]
         });
 
-        // Init flooding level & color
-        var floodingLevel = 0
-        updateFloodDisplay(floodingLevel);
+        // Sidebar for flooded buildings info
+        const settings = new Expand({
+          expandIconClass: "esri-icon-settings2",
+          expandTooltip: "Settings",
+           collapseIconClass: "esri-icon-close",
+           collapseTooltip: "Close",
+          view: view,
+          content: document.getElementById("settings")
+        });
 
-        // Get flooding level from slider
-        floodLevelSlider.on(["thumb-change", "thumb-drag"], floodingLevelChanged);
+        view.ui.add(settings, "top-left");
 
-        // Function that executes when flooding level changes
-        function floodingLevelChanged(event) {
-          floodingLevel = event.value/10
-          updateFloodDisplay(floodingLevel)
+        // Sidebar for flooded buildings info
+        const expand = new Expand({
+          expandIconClass: "esri-icon-menu",
+          expandTooltip: "Open statistics",
+           collapseIconClass: "esri-icon-close",
+           collapseTooltip: "Close",
+          view: view,
+          content: document.getElementById("esri-sidebar")
+        });
 
-          // Query amount of flooded buildings (NOTE: this has a maximum of 2000)
-          floodedBuildingFootprints.queryFeatures({
-              where: "Z_Min <'" + floodingLevel +"'", // or any other query expression
-              returnGeometry: false,
-              outFields: ["*"]
-            }).then(function(response) {
-              const count = response.features.length;
-              document.getElementById("floodedCounts").innerHTML = "Number of flooded buildings: " + count
-            });
-        }
+        // Buttons for downloading flooded road and building CSVs
+        const floodedBuildingCSVdownloadButton = document.getElementById("floodedBuildingCSVdownload");
+        const floodedRoadCSVdownloadButton = document.getElementById("floodedRoadCSVdownload");
+        let csvContentBLDG = "data:text/csv;charset=utf-8,";
+        let csvContentRD = "data:text/csv;charset=utf-8,";
 
+        floodedBuildingCSVdownloadButton.addEventListener("click", function() {
+          var currentDate = new Date().toISOString();
+          var formattedDate = currentDate.replace(/[:.]/g, '-');
+          console.log(csvContentBLDG)
+          const encodedUri = encodeURI(csvContentBLDG);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", `floodedBuildingsData_${formattedDate}.csv`);
+          document.body.appendChild(link); // Append link to the DOM
+          link.click(); 
+          document.body.removeChild(link);
+          });
+
+        floodedRoadCSVdownloadButton.addEventListener("click", function() {
+          var currentDate = new Date().toISOString();
+          var formattedDate = currentDate.replace(/[:.]/g, '-');
+          console.log(csvContentRD)
+          const encodedUri = encodeURI(csvContentRD);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", `floodedRoadsData_${formattedDate}.csv`);
+          document.body.appendChild(link); // Append link to the DOM
+          link.click(); 
+          document.body.removeChild(link);
+          });
+
+
+
+        view.ui.add(expand, "top-right");
+
+        // Create legend sidebar
+        const legend = new Legend({
+          view: view,
+          layerInfos:[
+            {
+              layer: NS_roads_dry,
+              title: "Roads",
+              hideLayers: [0,2,5,6,7]
+            },
+            {
+              layer: dryBuildingFootprints,
+              title: "Building footprints (Not at risk)"
+            },
+            {
+              layer: floodedBuildingFootprints,
+              title: "Building footprints (At risk)"
+            }
+          ]
+        });
+
+        // Make legend sidebar expandable and collapsable and add it to the UI
+        const legendExpand = new Expand({
+          expandIconClass: "esri-icon-legend",
+          expandTooltip: "Open legend",
+           collapseIconClass: "esri-icon-close",
+           collapseTooltip: "Close",
+          view: view,
+          content: legend
+        });
+
+        view.ui.add(legendExpand, "top-left");
+
+        // Code to handle popups
         view.popupEnabled = false;
         view.on("click", (event) => {
           // Get the coordinates of the click on the view
@@ -428,124 +665,9 @@
               return fulladdress
               console.log(fulladdress)
             }
-
-            
         }); 
 
-        /*
-        dryBuildingFootprints.on("click", function(event) {
-          
-          
-          // Get the feature that was clicked
-          const feature = event.graphic;
-
-          // Get the lat and lon of the point clicked
-          const lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
-          const lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
-
-          dryBuildingFootprints.popupTemplate = {
-            title: "{OBJECTID}",
-            content: "A"
-          }
-
-          console.log("a")
-
-          locator
-            .locationToAddress(locatorUrl, params)
-            .then((response) => {
-              // If an address is successfully found, show it in the popup's content
-              var address = response.address;
-
-              });
-
-          // Display the popup
-          view.popup.open({
-            features: [feature],
-            location: event.mapPoint,
-            content: [
-              {
-                type: "text",
-                text: "aahahaaa"
-              },
-
-              {
-                type: "text",
-                text: "text2"
-
-              }
-            ]
-          }); 
-          
-
-        }); */
-        
-        // Function to filter which features are flooded, and call the pixel filter function
-        function updateFloodDisplay(floodingLevel) {
-          raster_floodingLayer.pixelFilter = createPixelFilter(floodingLevel);
-          floodedBuildingFootprints.definitionExpression = "Z_Min < '" + floodingLevel + "'";
-          dryBuildingFootprints.definitionExpression = "Z_Min > '" + floodingLevel + "'OR Z_Min = null";
-          NS_roads_flooded.definitionExpression = roadDefaultDefinitionExpression + " AND " + "Z_Min < '" + floodingLevel + "'";
-          NS_roads_dry.definitionExpression = roadDefaultDefinitionExpression + " AND " + "Z_Min > '" + floodingLevel + "'OR Z_Min = null";
-          raster_floodingLayer.redraw();
-        }
-
-        // Pixel filter function. Only turns on any pixels below the flooding level, and makes all pixels blue
-        function createPixelFilter(floodingLevel) {
-          return function (pixelData) {
-            if (!pixelData || !pixelData.pixelBlock) return;
-
-            const pixels = pixelData.pixelBlock.pixels[0];
-            const mask = new Uint8Array(pixels.length);
-
-            const rBand = new Uint8Array(pixels.length);
-            const gBand = new Uint8Array(pixels.length);
-            const bBand = new Uint8Array(pixels.length);
-
-          
-            for (let i = 0; i < pixels.length; i++) {
-              mask[i] = pixels[i] <= floodingLevel ? 1 : 0;
-
-              rBand[i] = 50;
-              gBand[i] = 159;
-              bBand[i] = 237;
-            }
-
-  
-            pixelData.pixelBlock.mask = mask;
-            pixelData.pixelBlock.pixels = [rBand, gBand, bBand];
-            pixelData.pixelBlock.pixelType = "u8";
-          };}
-
-        // Sidebar for flooded buildings info
-        const expand = new Expand({
-          expandIconClass: "esri-icon-menu",
-          expandTooltip: "Open statistics",
-           collapseIconClass: "esri-icon-close",
-           collapseTooltip: "Close",
-          view: view,
-          content: document.getElementById("esri-sidebar")
-        });
-
-        view.ui.add(expand, "top-right");
-
-          // Legend sidebar
-        const legend = new Legend({
-          view: view,
-        });
-
-        // Legend sidebar
-        const legendExpand = new Expand({
-          expandIconClass: "esri-icon-legend",
-          expandTooltip: "Open legend",
-           collapseIconClass: "esri-icon-close",
-           collapseTooltip: "Close",
-          view: view,
-          content: legend
-        });
-
-        view.ui.add(legendExpand, "top-left");
-
-        // Display for weather info
+        // Create display for weather info and add it to UI
         const weatherInfo = new Expand({
           expandIconClass: "esri-icon-partly-cloudy",
           expandTooltip: "Open weather & location",
@@ -557,7 +679,202 @@
 
         view.ui.add(weatherInfo, "top-left");
 
-        // GetWeather Function
+        // Initialize flooding level & color
+        let floodingLevel = 0
+        updateFloodDisplay(floodingLevel);
+
+        // Set the default visibility of the flood level slider and API window: slider will be visible, API window visible
+        document.getElementById("floodSlider").style.display = "block";
+        document.getElementById("APIfloodLevel").style.display = "none";
+
+        // Get the toggle for switching between the flood level slider and the flood API
+        var element = document.getElementById("floodSettingToggle");
+        element.checked = false;
+        
+        // Handle the user switching between the slider and the API
+        element.addEventListener("change", function (event) {
+            if (event.target.checked) {
+              document.getElementById("floodSlider").style.display = "none";
+              document.getElementById("APIfloodLevel").style.display = "block";
+              getAPIfloodLevel().then(apiFloodData => {
+                const currentDateFormatted = formatDate(apiFloodData.eventDate)
+                document.getElementById("APIfloodLevel").innerHTML = "Water level (fetched from API): " + apiFloodData.value + " m <br> Water level last fetched: " + currentDateFormatted
+                floodingLevel = apiFloodData.value
+                updateFloodDisplay(floodingLevel); 
+              });
+            } else {
+              document.getElementById("floodSlider").style.display = "block";
+              document.getElementById("APIfloodLevel").style.display = "none";
+              floodingLevel = 0
+              updateFloodDisplay(floodingLevel); 
+            }
+        });
+
+        // Get flooding level from slider
+        floodLevelSlider.on(["thumb-change", "thumb-drag"], floodingLevelChanged);
+
+        // Function that executes when flooding level changes
+        function floodingLevelChanged(event) {
+          floodingLevel = event.value/10
+          updateFloodDisplay(floodingLevel)
+          let limitwarning = "";
+
+          // Query amount of flooded buildings (NOTE: this has a maximum of 2000)
+          floodedBuildingFootprints.queryFeatures({
+              where: "Z_Min <'" + floodingLevel +"'", // or any other query expression
+              returnGeometry: false,
+              outFields: ["*"]
+            }).then(function(response) {
+              const features = response.features;
+              const count = response.features.length;
+
+              if (features[0] !== null && features[0] !== undefined){
+
+              // Make sure you are starting with a blank CSV
+              csvContentBLDG = "data:text/csv;charset=utf-8,";
+
+              // Add CSV header
+              csvContentBLDG += Object.keys(features[0].attributes).join(",") + "\n";
+
+              // Add feature attributes to CSV
+              features.forEach(function(feature) {
+                  const attributes = feature.attributes;
+                  const attributeValues = Object.values(attributes).map(value => {
+                      return typeof value === "string" ? `"${value}"` : value; // Enclose strings in double quotes
+                  });
+                  csvContentBLDG += attributeValues.join(",") + "\n";
+                });
+              }
+
+              if (count >= 2000){
+                limitwarning = " WARNING: Feature limit exceeded. Max 2000";
+              }
+              else{
+                limitwarning = "";
+              }
+              document.getElementById("floodedBuildingCounts").innerHTML = "Number of flooded buildings: " + count + limitwarning
+            });
+
+          // Query amount of flooded road segments (NOTE: this has a maximum of 2000)
+          NS_roads_flooded.queryFeatures({
+              where: "Z_Min <'" + floodingLevel +"'", // or any other query expression
+              returnGeometry: false,
+              outFields: ["*"]
+            }).then(function(response) {
+              const features = response.features;
+              const count = response.features.length;
+
+                // Make sure you are starting with a blank CSV
+                csvContentRD = "data:text/csv;charset=utf-8,";
+
+                // Add CSV header
+                csvContentRD += Object.keys(features[0].attributes).join(",") + "\n";
+
+                // Add feature attributes to CSV
+                features.forEach(function(feature) {
+                    const attributes = feature.attributes;
+                    const attributeValues = Object.values(attributes).map(value => {
+                        return typeof value === "string" ? `"${value}"` : value; // Enclose strings in double quotes
+                    });
+                    csvContentRD += attributeValues.join(",") + "\n";
+                });
+
+              if (count >= 2000){
+                limitwarning = " WARNING: Feature limit exceeded. Max 2000";
+              }
+              else{
+                limitwarning = "";
+              }
+              document.getElementById("floodedRoadCounts").innerHTML = "Number of flooded road segments: " + count + limitwarning
+            });
+
+            importantPoints.queryFeatures({
+              where: "Z_Min <'" + floodingLevel +"'", // or any other query expression
+              returnGeometry: false,
+              outFields: ["*"]  
+            }).then(function(response) {
+              const features = response.features
+              var warningList = [];
+              features.forEach(function(feature){
+                var POIName = feature.attributes.Name;
+                if (POIName !== " "){
+                  warningList.push(POIName);
+                }
+              console.log(warningList)
+              document.getElementById("alertsDiv").innerHTML = "ALERT: the following important points are at risk: \n" + warningList;
+              });    
+            });
+        }
+
+        // Function to filter which features are flooded and call the pixel filter function
+        function updateFloodDisplay(floodingLevel) {
+          // Call pixel filter function
+          raster_floodingLayer.pixelFilter = createPixelFilter(floodingLevel);
+          // Filter out any dry buildings below the flood level, replacing them with flooded equivalents
+          floodedBuildingFootprints.definitionExpression = "Z_Min < '" + floodingLevel + "'";
+          dryBuildingFootprints.definitionExpression = "Z_Min > '" + floodingLevel + "'OR Z_Min = null";
+          NS_roads_flooded.definitionExpression = roadDefaultDefinitionExpression + " AND " + "Z_Min < '" + floodingLevel + "'";
+          NS_roads_dry.definitionExpression = roadDefaultDefinitionExpression + " AND " + "Z_Min > '" + floodingLevel + "'OR Z_Min = null";
+          // Redraw raster flooding layer
+          raster_floodingLayer.redraw();
+        }
+
+        // Pixel filter function for the flood raster. Makes all pixels above the flooding level invisible, and all pixels below the flooding level blue
+        function createPixelFilter(floodingLevel) {
+          return function (pixelData) {
+            if (!pixelData || !pixelData.pixelBlock) return;
+
+            const pixels = pixelData.pixelBlock.pixels[0];
+            const mask = new Uint8Array(pixels.length);
+
+            const rBand = new Uint8Array(pixels.length);
+            const gBand = new Uint8Array(pixels.length);
+            const bBand = new Uint8Array(pixels.length);
+          
+            for (let i = 0; i < pixels.length; i++) {
+              mask[i] = pixels[i] <= floodingLevel ? 1 : 0;
+
+              rBand[i] = 50;
+              gBand[i] = 159;
+              bBand[i] = 237;
+            }
+
+            pixelData.pixelBlock.mask = mask;
+            pixelData.pixelBlock.pixels = [rBand, gBand, bBand];
+            pixelData.pixelBlock.pixelType = "u8";
+          };}
+          
+        // Update the latitude and longitude of the center of the view
+        view.watch("extent", (extent) => {
+          const center = extent.center;
+          viewLat = center.latitude;
+          viewLon = center.longitude;
+        });
+
+        // Initialize variables to handle detecting if the view recently became stationary
+        let becameStationary = false
+        let stationaryTimer
+
+        // If the user changes the view and then leaves it stationary for 1 second, the weather API will be called
+        view.watch("stationary", (isStationary) => {
+          if (isStationary && !becameStationary) {
+            stationaryTimer = setTimeout(() => {
+              getWeather(viewLat,viewLon);
+              becameStationary = true;
+            }, 1000);
+          }
+          else if (!isStationary){
+            clearTimeout(stationaryTimer);
+            becameStationary = false;
+          }
+        });
+
+        // Code to perform the weather API call every 5 minutes
+        const intervalID = setInterval(() => {
+            getWeather(viewLat,viewLon)
+          },300000)
+
+        // GetWeather Function to obtain weather data from OpenWeather API according to latitude and longitude
         const getWeather = async (mapLat,mapLon) => {
           console.log("fetched weather")
           await axios.get(`
@@ -576,33 +893,6 @@
             console.error(err)
           })
         }
-          
-        // Fetch all live data every 1 minute
-        view.watch("extent", (extent) => {
-          const center = extent.center;
-          viewLat = center.latitude;
-          viewLon = center.longitude;
-        });
-
-        let becameStationary = false
-        let stationaryTimer
-
-        view.watch("stationary", (isStationary) => {
-          if (isStationary && !becameStationary) {
-            stationaryTimer = setTimeout(() => {
-              getWeather(viewLat,viewLon);
-              becameStationary = true;
-            }, 1000);
-          }
-          else if (!isStationary){
-            clearTimeout(stationaryTimer);
-            becameStationary = false;
-          }
-        });
-
-        const intervalID = setInterval(() => {
-            getWeather(viewLat,viewLon)
-          },300000)
 
         // Declare the latitude and longitude that the program will read interpolated tidal data from
         const tidalLat = 44.373
@@ -611,52 +901,85 @@
         // Get the current date and time
         const currentDate = new Date();
 
-        // Format the date and time to the desired format
+        // Format the date and time to the format required by the API
         const formattedDate = currentDate.toISOString().slice(0, 19) + 'Z';
 
-        console.log(formattedDate); // Output example: 2024-05-08T10:25:00Z
-
+        // API ID for Lunenberg Tidal Station
         const lunenbergStationID = '5cebf1df3d0f4a073c4bbcb1'
 
-        // API call for water level from Government of Canada
-        axios.get(`
-          https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${lunenbergStationID}/data?time-series-code=wlp&from=2024-05-08T00%3A00%3A00Z&to=2024-05-09T00%3A00%3A00Z
-        `)
-          .then(function (response) {
-            console.log(response.data)
-            //console.log(response.data.responseItems[0].waterLevel)
-            })
-            .catch(function (error) {
-            console.log(error)
-          })
+        async function getAPIfloodLevel() {
+          try {
+            const currentDate = new Date().toISOString(); // Get current date in ISO format
+            const oneDayAgo = new Date(Date.now() - 86400000).toISOString(); // Get date one day ago in ISO format
+            const response = await axios.get(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${lunenbergStationID}/data?time-series-code=wlp&from=${oneDayAgo}&to=${currentDate}`);
+            console.log(response.data);
+            return response.data[response.data.length - 1];
+            } catch (error) {
+              console.log(error);
+              return null; // or handle the error appropriately
+            }
+        }
 
+        // Function to format date returned by API into a more readable form
+        function formatDate(date){
+          // Parse the date string and create a Date object
+          const parsedDate = new Date(date);
+
+          // Format the date into a more readable format (e.g., "May 16, 2024 14:15")
+          const formattedDate = parsedDate.toLocaleString('en-US', { 
+              month: 'long', 
+              day: 'numeric', 
+              year: 'numeric', 
+              hour: 'numeric', 
+              minute: 'numeric' 
+          });
+
+          return formattedDate; // Output: "May 16, 2024 14:15"
+        }
       });
-
-      
-
     </script>
   </head>
 
   <body>
     <div id="viewDiv">
 
-      <div id="esri-sidebar">
+      <div id="esri-sidebar" class="esri-widget">
         <div class="text">
-          <div id="floodedCounts">Number of flooded buildings:</div>
+          <div id="floodedBuildingCounts">Number of flooded buildings:</div>
+          <button id="floodedBuildingCSVdownload">Download CSV</button>
+          <div id="floodedRoadCounts">Number of flooded road segments:</div>
+          <button id="floodedRoadCSVdownload">Download CSV</button>
+          <div id="alertsDiv"></div>
+          <div id="material-chart"></div>
         </div>
       </div>
 
-      <div id="weather-display">
+      <div id="weather-display" class="esri-widget">
         <div class="text">
           <div id="weatherDisplayText"></div>
         </div>
       </div>
     
       <div id="queryDiv" class="esri-widget">
-        <div class="tooltip">
+        <div class="tooltip" id="floodSlider">
             <label for="bufferNum">Set a flooding level:</label>
             <div id="bufferNum"></div>
-          </div>
+        </div>
+
+        <div class="tooltip" id="APIfloodLevel">
+          Flooding level (fetched from API):
+        </div>
+      </div>
+
+      <div id="settings" class="esri-widget">
+        <div class="text">
+        <h3>Settings</h3>
+        Choose flood level source:<br>
+        User-defined&nbsp;&nbsp;&nbsp;<label class="switch">
+          <input type="checkbox" id="floodSettingToggle">
+          <span class="slider round"></span>
+          </label>&nbsp;&nbsp;&nbsp;Live (from API)
+        </div>
       </div>
 
   </div>
